@@ -19,7 +19,8 @@ function Login() {
         axios.post('http://localhost:8080/api/students/login', credentials)
             .then(response => {
                 alert('Login successful!');
-                localStorage.setItem('token', response.data.token); // Save token if using JWT
+                const studentId = response.data.id; // Get the student ID from the response
+                localStorage.setItem('studentId', studentId); // Store the student ID
                 navigate('/dashboard'); // Redirect to dashboard after successful login
             })
             .catch(error => {
