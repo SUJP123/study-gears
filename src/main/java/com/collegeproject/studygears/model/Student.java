@@ -41,13 +41,13 @@ public class Student {
         // No-argument constructor
     }
 
-    public Student(@JsonProperty("id") UUID id,
-                   @JsonProperty("firstName") String firstName,
-                   @JsonProperty("lastName") String lastName,
-                   @JsonProperty("email") String email,
-                   @JsonProperty("username") String username,
-                   @JsonProperty("password") String password,
-                   @JsonProperty("tasks") List<Task> tasks) {
+    public Student(UUID id,
+                   String firstName,
+                   String lastName,
+                   String email,
+                   String username,
+                   String password,
+                   List<Task> tasks) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;

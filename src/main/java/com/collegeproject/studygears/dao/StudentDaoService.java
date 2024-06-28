@@ -1,9 +1,11 @@
 package com.collegeproject.studygears.dao;
 
 import com.collegeproject.studygears.model.Student;
+import com.collegeproject.studygears.model.Task;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,66 +20,81 @@ public class StudentDaoService implements StudentDao {
     }
 
     @Override
-    public int insertStudent(UUID id, String firstName, String lastName, String email, String username, String password) {
-        final String sql = "INSERT INTO student (id, firstName, lastName, email, username, password) VALUES (?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.update(sql, id, firstName, lastName, email, username, password);
+    public int insertStudent(UUID id, String firstName, String lastName, String email, String username, String password, List<Task> tasks) {
+        final String sqlStudent = "INSERT INTO student (id, first_name, last_name, email, username, password) VALUES (?, ?, ?, ?, ?, ?)";
+        int result = jdbcTemplate.update(sqlStudent, id, firstName, lastName, email, username, password);
+
+        if (result == 1 && tasks != null) {
+            for (Task task : tasks) {
+                final String sqlTask = "INSERT INTO task (id, student_id, title, description, priority, class_name, due_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                jdbcTemplate.update(sqlTask, task.getId(), id, task.getTitle(), task.getDescription(), task.getPriority(), task.getClassName(), task.getDueDate());
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public int insertStudent(Student student) {
+        UUID id = student.getId() == null ? UUID.randomUUID() : student.getId();
+        return insertStudent(id, student.getFirstName(), student.getLastName(), student.getEmail(), student.getUsername(), student.getPassword(), student.getTasks());
     }
 
     @Override
     public List<Student> selectAllStudents() {
-        final String sql = "SELECT id, firstName, lastName, email, username, password FROM student";
+        final String sql = "SELECT id, first_name, last_name, email, username, password FROM student";
         return jdbcTemplate.query(sql, (resultSet, i) -> {
             UUID id = UUID.fromString(resultSet.getString("id"));
-            String firstName = resultSet.getString("firstName");
-            String lastName = resultSet.getString("lastName");
+            String firstName = resultSet.getString("first_name");
+            String lastName = resultSet.getString("last_name");
             String email = resultSet.getString("email");
             String username = resultSet.getString("username");
             String password = resultSet.getString("password");
-            return new Student(id, firstName, lastName, email, username, password, null);
+            return new Student(id, firstName, lastName, email, username, password, new ArrayList<>());
         });
     }
 
     @Override
     public Optional<Student> selectStudentById(UUID id) {
-        final String sql = "SELECT id, firstName, lastName, email, username, password FROM student WHERE id = ?";
+        final String sql = "SELECT id, first_name, last_name, email, username, password FROM student WHERE id = ?";
         Student student = jdbcTemplate.queryForObject(sql, new Object[]{id}, (resultSet, i) -> {
             UUID studentId = UUID.fromString(resultSet.getString("id"));
-            String firstName = resultSet.getString("firstName");
-            String lastName = resultSet.getString("lastName");
+            String firstName = resultSet.getString("first_name");
+            String lastName = resultSet.getString("last_name");
             String email = resultSet.getString("email");
             String username = resultSet.getString("username");
             String password = resultSet.getString("password");
-            return new Student(studentId, firstName, lastName, email, username, password, null);
+            return new Student(studentId, firstName, lastName, email, username, password, new ArrayList<>());
         });
         return Optional.ofNullable(student);
     }
 
     @Override
     public Optional<Student> selectStudentByUsername(String username) {
-        final String sql = "SELECT id, firstName, lastName, email, username, password FROM student WHERE username = ?";
+        final String sql = "SELECT id, first_name, last_name, email, username, password FROM student WHERE username = ?";
         Student student = jdbcTemplate.queryForObject(sql, new Object[]{username}, (resultSet, i) -> {
             UUID id = UUID.fromString(resultSet.getString("id"));
-            String firstName = resultSet.getString("firstName");
-            String lastName = resultSet.getString("lastName");
+            String firstName = resultSet.getString("first_name");
+            String lastName = resultSet.getString("last_name");
             String email = resultSet.getString("email");
             String usernameResult = resultSet.getString("username");
             String password = resultSet.getString("password");
-            return new Student(id, firstName, lastName, email, usernameResult, password, null);
+            return new Student(id, firstName, lastName, email, usernameResult, password, new ArrayList<>());
         });
         return Optional.ofNullable(student);
     }
 
     @Override
     public Optional<Student> selectStudentByEmail(String email) {
-        final String sql = "SELECT id, firstName, lastName, email, username, password FROM student WHERE email = ?";
+        final String sql = "SELECT id, first_name, last_name, email, username, password FROM student WHERE email = ?";
         Student student = jdbcTemplate.queryForObject(sql, new Object[]{email}, (resultSet, i) -> {
             UUID id = UUID.fromString(resultSet.getString("id"));
-            String firstName = resultSet.getString("firstName");
-            String lastName = resultSet.getString("lastName");
+            String firstName = resultSet.getString("first_name");
+            String lastName = resultSet.getString("last_name");
             String emailResult = resultSet.getString("email");
             String username = resultSet.getString("username");
             String password = resultSet.getString("password");
-            return new Student(id, firstName, lastName, emailResult, username, password, null);
+            return new Student(id, firstName, lastName, emailResult, username, password, new ArrayList<>());
         });
         return Optional.ofNullable(student);
     }

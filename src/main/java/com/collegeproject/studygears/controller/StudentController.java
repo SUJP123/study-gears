@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/students")
+@CrossOrigin( origins = {"http://localhost:3000"}, methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
 public class StudentController {
 
     private final StudentService studentService;
@@ -107,5 +108,20 @@ public class StudentController {
     public ResponseEntity<List<Task>> getTasksByClassName(@PathVariable UUID studentId) {
         List<Task> tasks = taskService.getTasksByClassName(studentId);
         return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Student student) {
+        Optional<Student> existingStudent = studentService.getStudentByUsername(student.getUsername());
+        if (existingStudent.isPresent()) {
+            Student foundStudent = existingStudent.get();
+            if (foundStudent.getPassword().equals(student.getPassword())) {
+                return new ResponseEntity<>(foundStudent, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Invalid password", HttpStatus.UNAUTHORIZED);
+            }
+        } else {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
     }
 }
