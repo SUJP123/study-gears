@@ -9,11 +9,11 @@ import java.util.UUID;
 
 public interface TaskDao {
 
-    int insertTask(UUID id, String title, String description, LocalDate dueDate, Integer priority, String className, UUID studentId);
+    int insertTask(UUID id, String title, String description, LocalDate dueDate, Integer priority, String className, UUID studentId, LocalDate startDate, Boolean reminder);
 
     default int insertTask(Task task) {
         UUID id = UUID.randomUUID();
-        return insertTask(id, task.getTitle(), task.getDescription(), task.getDueDate(), task.getPriority(), task.getClassName(), task.getStudent().getId());
+        return insertTask(id, task.getTitle(), task.getDescription(), task.getDueDate(), task.getPriority(), task.getClassName(), task.getStudent().getId(), task.getStartDate(), task.getReminder());
     }
 
     List<Task> selectAllTasks();

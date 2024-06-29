@@ -1,9 +1,9 @@
 package com.collegeproject.studygears.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -18,33 +18,26 @@ public class Task {
     @NotBlank
     private String title;
 
-    @NotBlank
     private String description;
 
     @NotNull
     private LocalDate dueDate;
 
-    @NotNull
     private Integer priority;
 
-    @NotBlank
     private String className;
 
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
-    public Task() {
-        // No-argument constructor
-    }
+    private LocalDate startDate;
+    private Boolean reminder;
 
-    public Task(@JsonProperty("id") UUID id,
-                @JsonProperty("title") String title,
-                @JsonProperty("description") String description,
-                @JsonProperty("dueDate") LocalDate dueDate,
-                @JsonProperty("priority") Integer priority,
-                @JsonProperty("className") String className,
-                @JsonProperty("student") Student student) {
+    // Constructors, getters, and setters
+    public Task() {}
+
+    public Task(UUID id, String title, String description, LocalDate dueDate, Integer priority, String className, Student student, LocalDate startDate, Boolean reminder) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -52,6 +45,8 @@ public class Task {
         this.priority = priority;
         this.className = className;
         this.student = student;
+        this.startDate = startDate;
+        this.reminder = reminder;
     }
 
     public UUID getId() {
@@ -109,5 +104,21 @@ public class Task {
     public void setStudent(Student student) {
         this.student = student;
     }
-}
 
+    // Getters and setters for the new fields
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public Boolean getReminder() {
+        return reminder;
+    }
+
+    public void setReminder(Boolean reminder) {
+        this.reminder = reminder;
+    }
+}

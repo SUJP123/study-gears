@@ -3,7 +3,6 @@ package com.collegeproject.studygears.service;
 import com.collegeproject.studygears.dao.TaskDao;
 import com.collegeproject.studygears.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public class TaskService {
     private final TaskDao taskDao;
 
     @Autowired
-    public TaskService(@Qualifier("postgresTask") TaskDao taskDao) {
+    public TaskService(TaskDao taskDao) {
         this.taskDao = taskDao;
     }
 
@@ -27,6 +26,26 @@ public class TaskService {
 
     public List<Task> getAllTasks() {
         return taskDao.selectAllTasks();
+    }
+
+    public Optional<Task> getTaskById(UUID id) {
+        return taskDao.selectTaskById(id);
+    }
+
+    public Optional<Task> updateTask(UUID id, Task updatedTask) {
+        if (taskDao.existsById(id)) {
+            taskDao.updateTaskById(id, updatedTask);
+            return Optional.of(updatedTask);
+        }
+        return Optional.empty();
+    }
+
+    public boolean deleteTask(UUID id) {
+        if (taskDao.existsById(id)) {
+            taskDao.deleteTaskById(id);
+            return true;
+        }
+        return false;
     }
 
     public List<Task> getTasksByStudentId(UUID studentId) {
@@ -43,25 +62,5 @@ public class TaskService {
 
     public List<Task> getTasksByClassName(UUID studentId) {
         return taskDao.selectTasksByStudentIdOrderByClassName(studentId);
-    }
-
-    public Optional<Task> getTaskById(UUID id) {
-        return taskDao.selectTaskById(id);
-    }
-
-    public boolean deleteTask(UUID id) {
-        if (taskDao.existsById(id)) {
-            taskDao.deleteTaskById(id);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean updateTask(UUID id, Task task) {
-        if (taskDao.existsById(id)) {
-            taskDao.updateTaskById(id, task);
-            return true;
-        }
-        return false;
     }
 }

@@ -1,89 +1,100 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import TaskForm from './TaskForm';
 
-function TaskTracker() {
+const TaskTracker = ({ studentId }) => {
     const [tasks, setTasks] = useState([]);
-    const [newTask, setNewTask] = useState({
-        title: '',
-        description: '',
-        dueDate: '',
-        priority: '',
-        className: ''
-    });
+    const [selectedTask, setSelectedTask] = useState(null);
+    const [showForm, setShowForm] = useState(false);
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            axios.get('http://localhost:8080/api/students/tasks', {
-                headers: {
-                    'Authorization': token
-                }
-            })
-                .then(response => {
-                    setTasks(response.data);
-                })
-                .catch(error => {
-                    console.error('Error fetching tasks:', error);
-                });
-        } else {
-            alert('You must be logged in to view tasks.');
-            window.location.href = '/login';
-        }
-    }, []);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setNewTask({ ...newTask, [name]: value });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem('token');
-        axios.post('http://localhost:8080/api/students/tasks', newTask, {
-            headers: {
-                'Authorization': token
-            }
-        })
+    const fetchTasks = useCallback(() => {
+        axios.get(`http://localhost:8080/api/tasks/student/${studentId}`)
             .then(response => {
-                setTasks([...tasks, response.data]);
-                setNewTask({
-                    title: '',
-                    description: '',
-                    dueDate: '',
-                    priority: '',
-                    className: ''
-                });
+                setTasks(response.data);
             })
             .catch(error => {
-                console.error('Error adding task:', error);
+                console.error('Error fetching tasks:', error);
+            });
+    }, [studentId]);
+
+    useEffect(() => {
+        fetchTasks();
+    }, [fetchTasks]);
+
+    const handleTaskSave = (task) => {
+        if (task.id) {
+            axios.put(`http://localhost:8080/api/tasks/${task.id}`, task)
+                .then(() => {
+                    fetchTasks(); // Refetch tasks after updating
+                })
+                .catch(error => {
+                    console.error('Error updating task:', error);
+                });
+        } else {
+            axios.post(`http://localhost:8080/api/students/${studentId}/tasks`, task)
+                .then(() => {
+                    fetchTasks(); // Refetch tasks after adding
+                })
+                .catch(error => {
+                    console.error('Error creating task:', error);
+                });
+        }
+        setShowForm(false);
+        setSelectedTask(null);
+    };
+
+    const handleEditTask = (task) => {
+        setSelectedTask(task);
+        setShowForm(true);
+    };
+
+    const handleDeleteTask = (taskId) => {
+        if (!taskId) {
+            console.error('Invalid task ID');
+            return;
+        }
+
+        axios.delete(`http://localhost:8080/api/tasks/${taskId}`)
+            .then(() => {
+                fetchTasks(); // Refetch tasks after deleting
+            })
+            .catch(error => {
+                console.error('Error deleting task:', error);
             });
     };
 
     return (
         <div>
-            <h2>Task Tracker</h2>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="title" placeholder="Title" value={newTask.title} onChange={handleChange} required />
-                <input type="text" name="description" placeholder="Description" value={newTask.description} onChange={handleChange} required />
-                <input type="date" name="dueDate" value={newTask.dueDate} onChange={handleChange} required />
-                <input type="number" name="priority" placeholder="Priority" value={newTask.priority} onChange={handleChange} required />
-                <input type="text" name="className" placeholder="Class Name" value={newTask.className} onChange={handleChange} required />
-                <button type="submit">Add Task</button>
-            </form>
             <h3>Your Tasks</h3>
+            <button onClick={() => setShowForm(true)}>Add New Task</button>
             <ul>
                 {tasks.map(task => (
                     <li key={task.id}>
                         <h4>{task.title}</h4>
                         <p>{task.description}</p>
-                        <p>Due Date: {task.dueDate}</p>
                         <p>Priority: {task.priority}</p>
                         <p>Class: {task.className}</p>
+                        <p>Due Date: {task.dueDate}</p>
+                        <p>Start Date: {task.startDate}</p>
+                        <p>Reminder: {task.reminder ? 'Yes' : 'No'}</p>
+                        <button onClick={() => handleEditTask(task)}>Edit</button>
+                        <button onClick={() => handleDeleteTask(task.id)}>Delete</button>
                     </li>
                 ))}
             </ul>
+            {showForm && (
+                <TaskForm
+                    studentId={studentId}
+                    task={selectedTask}
+                    onSave={handleTaskSave}
+                    onCancel={() => {
+                        setShowForm(false);
+                        setSelectedTask(null);
+                    }}
+                />
+            )}
         </div>
     );
-}
+};
 
 export default TaskTracker;

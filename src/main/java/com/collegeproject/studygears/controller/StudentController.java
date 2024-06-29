@@ -106,7 +106,7 @@ public class StudentController {
 
     @GetMapping("/{studentId}/tasks/className")
     public ResponseEntity<List<Task>> getTasksByClassName(@PathVariable UUID studentId) {
-        List<Task> tasks = taskService.getTasksByClassName(studentId);
+        List<Task> tasks = taskService.getTasksByStudentId(studentId);
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 

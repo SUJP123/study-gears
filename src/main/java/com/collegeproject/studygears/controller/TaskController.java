@@ -8,10 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tasks")
+@CrossOrigin(origins = {"http://localhost:3000"}, methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
 public class TaskController {
 
     private final TaskService taskService;
@@ -27,8 +29,34 @@ public class TaskController {
         return new ResponseEntity<>(newTask, HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<List<Task>> getAllTasks() {
+        List<Task> tasks = taskService.getAllTasks();
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> getTaskById(@PathVariable UUID id) {
+        Optional<Task> task = taskService.getTaskById(id);
+        return task.map(ResponseEntity::ok)
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Task> updateTask(@PathVariable UUID id, @RequestBody Task updatedTask) {
+        Optional<Task> task = taskService.updateTask(id, updatedTask);
+        return task.map(ResponseEntity::ok)
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
+        boolean isDeleted = taskService.deleteTask(id);
+        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
     @GetMapping("/student/{studentId}")
-    public ResponseEntity<List<Task>> getTasksByStudent(@PathVariable UUID studentId) {
+    public ResponseEntity<List<Task>> getTasksByStudentId(@PathVariable UUID studentId) {
         List<Task> tasks = taskService.getTasksByStudentId(studentId);
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }

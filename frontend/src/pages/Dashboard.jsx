@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import TaskTracker from './TaskTracker';
 
 function Dashboard() {
     const [user, setUser] = useState(null);
-    const [tasks, setTasks] = useState([]);
+    const [question, setQuestion] = useState('');
+    const [answer, setAnswer] = useState('');
 
     useEffect(() => {
         const studentId = localStorage.getItem('studentId');
@@ -15,19 +17,22 @@ function Dashboard() {
                 .catch(error => {
                     console.error('Error fetching user details:', error);
                 });
-
-            axios.get(`http://localhost:8080/api/students/${studentId}/tasks`)
-                .then(response => {
-                    setTasks(response.data);
-                })
-                .catch(error => {
-                    console.error('Error fetching tasks:', error);
-                });
         } else {
             alert('You must be logged in to view the dashboard.');
             window.location.href = '/login';
         }
     }, []);
+
+    const handleQuestionSubmit = (e) => {
+        e.preventDefault();
+        axios.post('http://localhost:8080/api/studybot/ask', { question })
+            .then(response => {
+                setAnswer(response.data.answer);
+            })
+            .catch(error => {
+                console.error('Error fetching answer:', error);
+            });
+    };
 
     return (
         <div>
@@ -39,18 +44,24 @@ function Dashboard() {
                     <p>Username: {user.username}</p>
                 </div>
             )}
-            <h3>Your Tasks</h3>
-            <ul>
-                {tasks.map(task => (
-                    <li key={task.id}>
-                        <h4>{task.title}</h4>
-                        <p>{task.description}</p>
-                        <p>Priority: {task.priority}</p>
-                        <p>Class: {task.className}</p>
-                        <p>Due Date: {task.dueDate}</p>
-                    </li>
-                ))}
-            </ul>
+            <TaskTracker studentId={localStorage.getItem('studentId')} />
+            <h3>Study Bot</h3>
+            <form onSubmit={handleQuestionSubmit}>
+                <input
+                    type="text"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Ask a question"
+                    required
+                />
+                <button type="submit">Ask</button>
+            </form>
+            {answer && (
+                <div>
+                    <h4>Answer:</h4>
+                    <p>{answer}</p>
+                </div>
+            )}
         </div>
     );
 }

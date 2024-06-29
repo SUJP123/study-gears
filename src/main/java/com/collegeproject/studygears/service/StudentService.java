@@ -72,7 +72,7 @@ public class StudentService {
     }
 
     // Task management methods
-    public Task addTask(Task task) {
+    public Task addTask(UUID studentId, Task task) {
         return taskService.addTask(task);
     }
 
