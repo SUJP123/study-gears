@@ -8,7 +8,7 @@ function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:8080/api/students/login', {
+        axios.post('https://study-gears-6cac3ab804b6.herokuapp.com/api/students/login', {
             username,
             password,
         })

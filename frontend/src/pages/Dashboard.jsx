@@ -11,7 +11,7 @@ function Dashboard() {
     useEffect(() => {
         const studentId = localStorage.getItem('studentId');
         if (studentId) {
-            axios.get(`http://localhost:8080/api/students/${studentId}`)
+            axios.get(`https://study-gears-6cac3ab804b6.herokuapp.com/api/students/${studentId}`)
                 .then(response => {
                     setUser(response.data);
                 })

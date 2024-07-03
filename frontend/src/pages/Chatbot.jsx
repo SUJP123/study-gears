@@ -9,7 +9,7 @@ function Chatbot() {
 
     const handleQuestionSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:8080/api/studybot/ask', { question })
+        axios.post('https://study-gears-6cac3ab804b6.herokuapp.com/api/studybot/ask', { question })
             .then(response => {
                 setAnswer(response.data.answer);
                 setVideos(response.data.videos);

@@ -12,7 +12,7 @@ const TaskTracker = ({ studentId }) => {
     const [filterCriteria, setFilterCriteria] = useState('');
 
     const fetchTasks = useCallback(() => {
-        axios.get(`http://localhost:8080/api/tasks/student/${studentId}`)
+        axios.get(`https://study-gears-6cac3ab804b6.herokuapp.com/api/tasks/student/${studentId}`)
             .then(response => {
                 const fetchedTasks = response.data.map(task => ({
                     ...task,
@@ -37,7 +37,7 @@ const TaskTracker = ({ studentId }) => {
         };
 
         if (task.id) {
-            axios.put(`http://localhost:8080/api/tasks/${task.id}`, taskWithDate)
+            axios.put(`https://study-gears-6cac3ab804b6.herokuapp.com/api/tasks/${task.id}`, taskWithDate)
                 .then(() => {
                     fetchTasks();
                 })
@@ -45,7 +45,7 @@ const TaskTracker = ({ studentId }) => {
                     console.error('Error updating task:', error);
                 });
         } else {
-            axios.post(`http://localhost:8080/api/students/${studentId}/tasks`, taskWithDate)
+            axios.post(`https://study-gears-6cac3ab804b6.herokuapp.com/api/students/${studentId}/tasks`, taskWithDate)
                 .then(() => {
                     fetchTasks();
                 })
@@ -63,7 +63,7 @@ const TaskTracker = ({ studentId }) => {
     };
 
     const handleDeleteTask = (taskId) => {
-        axios.delete(`http://localhost:8080/api/tasks/${taskId}`)
+        axios.delete(`https://study-gears-6cac3ab804b6.herokuapp.com/api/tasks/${taskId}`)
             .then(() => {
                 fetchTasks();
             })
