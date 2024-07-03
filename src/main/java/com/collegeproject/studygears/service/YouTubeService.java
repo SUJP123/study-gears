@@ -19,7 +19,7 @@ public class YouTubeService {
 
     private final YouTube youtube;
 
-    @Value("${youtube.api.key}")
+    @Value("YOUTUBE_API_KEY_VALUE")
     private String youtubeApiKey;
 
     public YouTubeService() throws Exception {

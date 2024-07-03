@@ -23,7 +23,7 @@ public class OpenAiService {
     @Value("${openai.api.url}")
     private String openAiApiUrl;
 
-    @Value("${openai.api.key}")
+    @Value("APIKEY_STRING_VALUE")
     private String openAiApiKey;
 
     private final RestTemplate restTemplate;
