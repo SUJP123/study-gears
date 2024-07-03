@@ -7,3 +7,4 @@ build an effective schedule.
 # Technologies
 
 This site used a springboot backend with a react.js fronted. A PostgreSQL database was used in order to manage and keep track of tasks and users of the site. 
+# study-gears-public
