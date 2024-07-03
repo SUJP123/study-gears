@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/studybot")
-@CrossOrigin(origins = {"http://localhost:3000"})
+@CrossOrigin(origins = {"https://study-gears-11k9qh3pf-sujp123s-projects.vercel.app"})
 public class QuestionController {
 
     private final OpenAiService openAiService;
