@@ -1,0 +1,60 @@
+.task-tracker {
+    text-align: center;
+    margin: 20px;
+    background-color: #1f1f1f;
+    color: #e0e0e0;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.task-tracker h3 {
+    color: #ff0000;
+}
+
+.task-tracker input[type="text"],
+.task-tracker select {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #333333;
+    border-radius: 5px;
+    background-color: #333333;
+    color: #e0e0e0;
+}
+
+.task-tracker .add-task-button,
+.task-tracker .edit-button,
+.task-tracker .delete-button {
+    background-color: #333333;
+    color: #ff0000;
+    border: 1px solid #ff0000;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.task-tracker .add-task-button:hover,
+.task-tracker .edit-button:hover,
+.task-tracker .delete-button:hover {
+    background-color: #ff0000;
+    color: #121212;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-item {
+    border: 1px solid #333333;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #2a2a2a;
+}
+
+.task-item h4 {
+    color: #ff0000;
+}

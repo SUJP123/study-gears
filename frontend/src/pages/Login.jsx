@@ -1,41 +1,55 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import '../styles/Login.css';
 
 function Login() {
-    const [credentials, setCredentials] = useState({
-        username: '',
-        password: ''
-    });
-    const navigate = useNavigate();
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setCredentials({ ...credentials, [name]: value });
-    };
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:8080/api/students/login', credentials)
-            .then(response => {
-                alert('Login successful!');
-                const studentId = response.data.id; // Get the student ID from the response
-                localStorage.setItem('studentId', studentId); // Store the student ID
-                navigate('/dashboard'); // Redirect to dashboard after successful login
+        axios.post('http://localhost:8080/api/students/login', {
+            username,
+            password,
+        })
+            .then((response) => {
+                localStorage.setItem('studentId', response.data.id);
+                alert('Login successful');
+                window.location.href = '/dashboard';
             })
             .catch(error => {
-                alert('Error: ' + error.response.data);
+                console.error('Error logging in:', error);
             });
     };
 
     return (
-        <div>
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="username" placeholder="Username" value={credentials.username} onChange={handleChange} required />
-                <input type="password" name="password" placeholder="Password" value={credentials.password} onChange={handleChange} required />
+        <div className="login">
+            <br></br>
+            <form className="login-form" onSubmit={handleSubmit}>
+                <h2>Login</h2>
+                <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}
+                       required/>
+                <input type="password" placeholder="Password" value={password}
+                       onChange={(e) => setPassword(e.target.value)} required/>
                 <button type="submit">Login</button>
             </form>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+            <p>This WebApp Was Created By Sujay Patel</p>
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
         </div>
     );
 }

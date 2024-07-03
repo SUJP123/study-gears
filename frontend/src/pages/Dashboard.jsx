@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TaskTracker from './TaskTracker';
+import Chatbot from './Chatbot';
+import '../styles/Dashboard.css';
 
 function Dashboard() {
     const [user, setUser] = useState(null);
-    const [question, setQuestion] = useState('');
-    const [answer, setAnswer] = useState('');
+    const [view, setView] = useState('tasks'); // 'tasks' or 'chatbot'
 
     useEffect(() => {
         const studentId = localStorage.getItem('studentId');
@@ -23,44 +24,27 @@ function Dashboard() {
         }
     }, []);
 
-    const handleQuestionSubmit = (e) => {
-        e.preventDefault();
-        axios.post('http://localhost:8080/api/studybot/ask', { question })
-            .then(response => {
-                setAnswer(response.data.answer);
-            })
-            .catch(error => {
-                console.error('Error fetching answer:', error);
-            });
+    const handleToggleView = () => {
+        setView(view === 'tasks' ? 'chatbot' : 'tasks');
     };
 
     return (
-        <div>
+        <div className="dashboard">
             <h2>User Dashboard</h2>
             {user && (
-                <div>
+                <div className="user-info">
                     <p>Welcome, {user.firstName} {user.lastName}!</p>
                     <p>Email: {user.email}</p>
                     <p>Username: {user.username}</p>
                 </div>
             )}
-            <TaskTracker studentId={localStorage.getItem('studentId')} />
-            <h3>Study Bot</h3>
-            <form onSubmit={handleQuestionSubmit}>
-                <input
-                    type="text"
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    placeholder="Ask a question"
-                    required
-                />
-                <button type="submit">Ask</button>
-            </form>
-            {answer && (
-                <div>
-                    <h4>Answer:</h4>
-                    <p>{answer}</p>
-                </div>
+            <button className="toggle-button" onClick={handleToggleView}>
+                {view === 'tasks' ? 'Switch to Study Bot' : 'Switch to Task List'}
+            </button>
+            {view === 'tasks' ? (
+                <TaskTracker studentId={localStorage.getItem('studentId')} />
+            ) : (
+                <Chatbot />
             )}
         </div>
     );

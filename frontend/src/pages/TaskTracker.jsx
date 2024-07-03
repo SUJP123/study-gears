@@ -1,16 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import '../styles/TaskTracker.css';
 import TaskForm from './TaskForm';
 
 const TaskTracker = ({ studentId }) => {
     const [tasks, setTasks] = useState([]);
-    const [selectedTask, setSelectedTask] = useState(null);
+    const [filteredTasks, setFilteredTasks] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [selectedTasks, setSelectedTasks] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterCriteria, setFilterCriteria] = useState('');
 
     const fetchTasks = useCallback(() => {
         axios.get(`http://localhost:8080/api/tasks/student/${studentId}`)
             .then(response => {
-                setTasks(response.data);
+                const fetchedTasks = response.data.map(task => ({
+                    ...task,
+                    dueDate: new Date(task.dueDate),
+                }));
+                setTasks(fetchedTasks);
+                setFilteredTasks(fetchedTasks);
             })
             .catch(error => {
                 console.error('Error fetching tasks:', error);
@@ -22,74 +31,115 @@ const TaskTracker = ({ studentId }) => {
     }, [fetchTasks]);
 
     const handleTaskSave = (task) => {
+        const taskWithDate = {
+            ...task,
+            dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+        };
+
         if (task.id) {
-            axios.put(`http://localhost:8080/api/tasks/${task.id}`, task)
+            axios.put(`http://localhost:8080/api/tasks/${task.id}`, taskWithDate)
                 .then(() => {
-                    fetchTasks(); // Refetch tasks after updating
+                    fetchTasks();
                 })
                 .catch(error => {
                     console.error('Error updating task:', error);
                 });
         } else {
-            axios.post(`http://localhost:8080/api/students/${studentId}/tasks`, task)
+            axios.post(`http://localhost:8080/api/students/${studentId}/tasks`, taskWithDate)
                 .then(() => {
-                    fetchTasks(); // Refetch tasks after adding
+                    fetchTasks();
                 })
                 .catch(error => {
                     console.error('Error creating task:', error);
                 });
         }
         setShowForm(false);
-        setSelectedTask(null);
+        setSelectedTasks([]);
     };
 
     const handleEditTask = (task) => {
-        setSelectedTask(task);
+        setSelectedTasks([task]);
         setShowForm(true);
     };
 
     const handleDeleteTask = (taskId) => {
-        if (!taskId) {
-            console.error('Invalid task ID');
-            return;
-        }
-
         axios.delete(`http://localhost:8080/api/tasks/${taskId}`)
             .then(() => {
-                fetchTasks(); // Refetch tasks after deleting
+                fetchTasks();
             })
             .catch(error => {
                 console.error('Error deleting task:', error);
             });
     };
 
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+        filterTasks(e.target.value, filterCriteria);
+    };
+
+    const handleFilterChange = (e) => {
+        setFilterCriteria(e.target.value);
+        filterTasks(searchTerm, e.target.value);
+    };
+
+    const filterTasks = (searchTerm, filterCriteria) => {
+        let filtered = tasks;
+        if (searchTerm) {
+            filtered = filtered.filter(task => task.title.toLowerCase().includes(searchTerm.toLowerCase()));
+        }
+        if (filterCriteria) {
+            switch (filterCriteria) {
+                case 'dueDate':
+                    filtered = filtered.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                    break;
+                case 'priority':
+                    filtered = filtered.sort((a, b) => a.priority - b.priority);
+                    break;
+                default:
+                    break;
+            }
+        }
+        setFilteredTasks(filtered);
+    };
+
     return (
-        <div>
+        <div className="task-tracker">
             <h3>Your Tasks</h3>
-            <button onClick={() => setShowForm(true)}>Add New Task</button>
-            <ul>
-                {tasks.map(task => (
-                    <li key={task.id}>
+            <button className="add-task-button" onClick={() => setShowForm(true)}>Add New Task</button>
+            <input
+                type="text"
+                placeholder="Search tasks"
+                value={searchTerm}
+                onChange={handleSearch}
+            />
+            <select onChange={handleFilterChange} value={filterCriteria}>
+                <option value="">No filter</option>
+                <option value="dueDate">Due Date</option>
+                <option value="priority">Priority</option>
+            </select>
+            <ul className="task-list">
+                {filteredTasks.map(task => (
+                    <li key={task.id} className="task-item">
                         <h4>{task.title}</h4>
-                        <p>{task.description}</p>
+                        <p>Description: {task.description}</p>
                         <p>Priority: {task.priority}</p>
                         <p>Class: {task.className}</p>
-                        <p>Due Date: {task.dueDate}</p>
+                        <p>Due Date: {task.dueDate.toDateString()}</p>
                         <p>Start Date: {task.startDate}</p>
                         <p>Reminder: {task.reminder ? 'Yes' : 'No'}</p>
-                        <button onClick={() => handleEditTask(task)}>Edit</button>
-                        <button onClick={() => handleDeleteTask(task.id)}>Delete</button>
+                        <button className="edit-button" onClick={() => handleEditTask(task)}>Edit</button>
+                        <button className="delete-button" onClick={() => handleDeleteTask(task.id)}>Delete</button>
                     </li>
                 ))}
             </ul>
             {showForm && (
                 <TaskForm
                     studentId={studentId}
-                    task={selectedTask}
+                    task={selectedTasks[0]}
                     onSave={handleTaskSave}
                     onCancel={() => {
                         setShowForm(false);
-                        setSelectedTask(null);
+                        setSelectedTasks([]);
                     }}
                 />
             )}
